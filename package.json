@@ -1,0 +1,45 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "mocha --exit",
+    "e2e": "cypress run",
+    "e2e:open": "cypress open",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "helmet": "^7.1.0",
+    "ip-range-check": "^0.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "dato-konverter": "^1.0.1",
+    "mysql2": "^3.10.1",
+    "socket.io": "^4.8.0"
+  },
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "cypress": "^13.13.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-cypress": "^3.3.0",
+    "eslint-plugin-node": "^11.1.0",
+    "globals": "^15.6.0",
+    "mocha": "^10.7.0",
+    "supertest": "^7.0.0"
+  }
+}
