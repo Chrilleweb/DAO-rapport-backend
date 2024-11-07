@@ -60,6 +60,10 @@ export const login_post = async (req, res) => {
       return res.status(400).json({ message: "Please fill in all fields" });
     }
 
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
     // Find the user by email
     const user = await User.findByEmail(email);
     if (!user) {
