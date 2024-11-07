@@ -2,7 +2,6 @@ import { Router } from "express";
 import { authenticateToken } from "../middleware/jwtToken.js";
 import { authorizeAdmin } from "../middleware/authorizeAdmin.js";
 import { signup_post, change_password_post } from "../controllers/usersController.js";
-import { checkDefaultPassword } from "../middleware/checkDefaultPassword.js";
 import { get_all_users, reset_password_post, delete_user_post, update_role_post } from "../controllers/adminController.js";
 
 const router = Router();
@@ -18,10 +17,6 @@ router.get("/signup", authorizeAdmin, (req, res) => {
 
 router.get("/reset-password", authorizeAdmin, (req, res) => {
     res.status(200).json({ message: "Reset password page" });
-  });
-
-router.get("/change-password", checkDefaultPassword, (req, res) => {
-    res.status(200).json({ message: "Change password page" });
   });
 
 //POST requests

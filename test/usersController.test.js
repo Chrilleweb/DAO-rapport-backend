@@ -105,21 +105,6 @@ describe("API Tests", () => {
       });
   });
 
-  it("Should not get access to change password", (done) => {
-    request(server)
-      .get("/auth/change-password")
-      .set("Cookie", `token=${userToken}`)
-      .end((err, res) => {
-        if (err) return done(err);
-        expect(res.status).to.equal(403);
-        expect(res.body).to.have.property(
-          "message",
-          "You already have changed your password, you will get redirected"
-        );
-        done();
-      });
-  });
-
   it("should not allow password change to less than 6 characters", (done) => {
     request(server)
       .post("/auth/change-password")
