@@ -21,7 +21,20 @@ socketSetup(server);
 app.set("trust proxy", 1);
 
 // middleware
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"], // Tillader kun ressourcer fra samme domæne
+        scriptSrc: ["'self'", process.env.FRONTEND_URL], // Tillader scripts fra backend og din frontend
+        styleSrc: ["'self'", process.env.FRONTEND_URL], // Tillader stylesheets fra backend og din frontend
+        connectSrc: ["'self'", process.env.FRONTEND_URL], // Tillader kun API-kald til backend og frontend
+      },
+    },
+    referrerPolicy: { policy: "no-referrer" }, // Forhindrer referrer-data i at blive sendt
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
