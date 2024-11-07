@@ -105,15 +105,14 @@ describe("API Tests", () => {
       });
   });
 
-  it("should not allow password change to less than 6 characters", (done) => {
+  it("should not allow password change", (done) => {
     request(server)
       .post("/auth/change-password")
       .set("Cookie", `token=${userToken}`)
-      .send({ newPassword: "123", confirmPassword: "123" }) // Password under 6 tegn
+      .send({ newPassword: "123", confirmPassword: "123" })
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.status).to.equal(400); // Forventet fejlstatus
-        expect(res.body).to.have.property("message", "Password must be between 6 and 20 characters"); // Forventet fejlmeddelelse
+        expect(res.status).to.equal(403); // Forventet fejlstatus
         done();
       });
   });

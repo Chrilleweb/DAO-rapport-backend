@@ -30,7 +30,8 @@
     "jsonwebtoken": "^9.0.2",
     "dato-konverter": "^1.0.1",
     "mysql2": "^3.10.1",
-    "socket.io": "^4.8.0"
+    "socket.io": "^4.8.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "chai": "^5.1.1",

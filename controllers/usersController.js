@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
+import zxcvbn from "zxcvbn";
 
 export const signup_post = async (req, res) => {
   try {
@@ -93,7 +94,10 @@ export const login_post = async (req, res) => {
 
     const isDefaultPassword = await bcrypt.compare("dao365", user.password);
     if (isDefaultPassword) {
-      res.cookie('requiresPasswordChange', 'true', { httpOnly: true, path: '/' }); // HttpOnly cookie for security -  '/' can only be accessed by the server
+      res.cookie("requiresPasswordChange", "true", {
+        httpOnly: true,
+        path: "/",
+      }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
     }
 
@@ -112,12 +116,22 @@ export const login_post = async (req, res) => {
 
 export const change_password_post = async (req, res) => {
   try {
+    if (!req.cookies.requiresPasswordChange) {
+      return res
+        .status(403)
+        .json({ message: "You have already changed your password" });
+    }
     const { newPassword, confirmPassword } = req.body;
     const userId = req.user.userId;
 
-    if (!newPassword || newPassword.length < 6 || newPassword.length > 20) {
+    const passwordStrength = zxcvbn(newPassword);
+    if (passwordStrength.score < 2) {
+      return res.status(400).json({ message: "Password is too weak" });
+    }
+
+    if (!newPassword || newPassword.length < 8 || newPassword.length > 20) {
       return res.status(400).json({
-        message: "Password must be between 6 and 20 characters",
+        message: "Password must be between 8 and 20 characters",
       });
     }
 
@@ -128,7 +142,7 @@ export const change_password_post = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     await User.updatePassword(userId, hashedPassword);
 
-    res.clearCookie('requiresPasswordChange', { path: '/' });
+    res.clearCookie("requiresPasswordChange", { path: "/" });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     console.error(error);
@@ -138,6 +152,6 @@ export const change_password_post = async (req, res) => {
 
 export const logout_get = (req, res) => {
   res.cookie("token", "", { maxAge: 1 }); // Expire the cookie immediately
-  res.clearCookie('requiresPasswordChange', { path: '/' });
+  res.clearCookie("requiresPasswordChange", { path: "/" });
   return res.status(200).json({ message: "Logged out successfully" });
 };
