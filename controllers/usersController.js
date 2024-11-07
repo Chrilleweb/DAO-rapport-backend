@@ -13,9 +13,10 @@ export const signup_post = async (req, res) => {
     }
 
     // Validate firstname and lastname for invalid characters
-    if (!/^[\p{L}]+$/u.test(firstname) || !/^[\p{L}]+$/u.test(lastname)) {
+    if (!/^[\p{L}\s'-]+$/u.test(firstname) || !/^[\p{L}\s'-]+$/u.test(lastname)) {
       return res.status(400).json({ message: "Invalid name" });
     }
+
 
     // Check if email is valid
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
