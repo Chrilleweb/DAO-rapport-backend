@@ -25,13 +25,13 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"], // Tillader kun ressourcer fra samme domæne
-        scriptSrc: ["'self'", process.env.FRONTEND_URL], // Tillader scripts fra backend og din frontend
-        styleSrc: ["'self'", process.env.FRONTEND_URL], // Tillader stylesheets fra backend og din frontend
-        connectSrc: ["'self'", process.env.FRONTEND_URL], // Tillader kun API-kald til backend og frontend
+        defaultSrc: ["'self'"], // allows resources to be loaded from the same origin
+        scriptSrc: ["'self'", process.env.FRONTEND_URL], // allows scripts to be loaded from the same origin
+        styleSrc: ["'self'", process.env.FRONTEND_URL], // allows styles to be loaded from the same origin
+        connectSrc: ["'self'", process.env.FRONTEND_URL], // allows data to be loaded from the same origin
       },
     },
-    referrerPolicy: { policy: "no-referrer" }, // Forhindrer referrer-data i at blive sendt
+    referrerPolicy: { policy: "no-referrer" }, // hides the Referer header from third-party websites
   })
 );
 
