@@ -5,7 +5,7 @@ class User {
     try {
       const [result] = await connection.query(
         "INSERT INTO users SET ?",
-        newUser,
+        newUser
       );
       return result;
     } catch (error) {
@@ -17,7 +17,7 @@ class User {
     try {
       const [result] = await connection.query(
         "UPDATE users SET role = ? WHERE id = ?",
-        [role, userId],
+        [role, userId]
       );
       return result.affectedRows;
     } catch (error) {
@@ -29,7 +29,7 @@ class User {
     try {
       const [result] = await connection.query(
         "DELETE FROM users WHERE id = ?",
-        userId,
+        userId
       );
       return result.affectedRows;
     } catch (error) {
@@ -41,7 +41,7 @@ class User {
     try {
       const [rows] = await connection.query(
         "SELECT * FROM users WHERE email = ?",
-        [email],
+        [email]
       );
       return rows[0];
     } catch (error) {
@@ -53,7 +53,7 @@ class User {
     try {
       const [rows] = await connection.query(
         "SELECT * FROM users WHERE id = ?",
-        [userId],
+        [userId]
       );
       return rows[0];
     } catch (error) {
@@ -63,7 +63,9 @@ class User {
 
   static async findAll() {
     try {
-      const [rows] = await connection.query("SELECT * FROM users");
+      const [rows] = await connection.query(
+        "SELECT * FROM users ORDER BY role ASC, firstname ASC, lastname ASC"
+      );
       return rows;
     } catch (error) {
       throw new Error(error);
@@ -74,7 +76,7 @@ class User {
     try {
       const [result] = await connection.query(
         "UPDATE users SET password = ? WHERE id = ?",
-        [newPassword, userId],
+        [newPassword, userId]
       );
       return result.affectedRows;
     } catch (error) {
