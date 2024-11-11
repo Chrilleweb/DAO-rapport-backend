@@ -10,7 +10,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import checkIP from "./middleware/checkIp.js";
 import http from "http";
-import socketSetup from "./socket.js";
+import socketSetup from "./lib/socket.js";
 
 dotenv.config();
 
