@@ -4,6 +4,7 @@ import helmet from "helmet";
 import apiRoutes from "./routes/apiRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import openaiRoutes from "./routes/openaiRoutes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -40,6 +41,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 const corsOptions = {
   origin: process.env.FRONTEND_URL, // URL'en til din SvelteKit frontend
+  methods: ["GET", "POST", "PUT", "DELETE"], // Tilladte metoder
   credentials: true, // Tillader cookies og HTTP-autentificering
   optionsSuccessStatus: 200 // For ældre browsere
 };
@@ -56,6 +58,7 @@ app.use(checkIP);
 app.use(apiRoutes);
 app.use("/auth", authRoutes);
 app.use("/reports", reportRoutes);
+app.use('/api/openai', openaiRoutes);
 
 const PORT = process.env.PORT || 8080;
 
