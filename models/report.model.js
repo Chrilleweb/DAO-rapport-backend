@@ -70,9 +70,9 @@ class Rapport {
         reportTypeIds
       );
 
-      rows.forEach(row => {
+      rows.forEach((row) => {
         row.created_at = convertToUTC(new Date(row.created_at));
-    });
+      });
 
       return rows;
     } catch (error) {
