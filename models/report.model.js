@@ -1,4 +1,5 @@
 import connection from "../config/db.js"; // Importer din databaseforbindelse
+import convertToUTC from "dato-konverter";
 
 class Rapport {
   // Opret en ny rapport
@@ -44,6 +45,35 @@ class Rapport {
         `,
         reportTypeIds
       );
+      return rows;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async getWeeklyReportsByTypeIds(reportTypeIds) {
+    try {
+      // Prepare placeholders for the IN clause
+      const placeholders = reportTypeIds.map(() => "?").join(",");
+      const [rows] = await connection.query(
+        `
+        SELECT report_fields.id, report_fields.content, report_fields.created_at, 
+               report_fields.user_id, report_fields.report_type_id,
+               users.firstname, users.lastname, report_types.report_type
+        FROM report_fields 
+        JOIN users ON report_fields.user_id = users.id 
+        JOIN report_types ON report_fields.report_type_id = report_types.id
+        WHERE report_fields.report_type_id IN (${placeholders})
+        AND report_fields.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+        ORDER BY report_fields.created_at DESC;
+        `,
+        reportTypeIds
+      );
+
+      rows.forEach(row => {
+        row.created_at = convertToUTC(new Date(row.created_at));
+    });
+
       return rows;
     } catch (error) {
       throw new Error(error);

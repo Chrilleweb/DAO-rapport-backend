@@ -1,4 +1,3 @@
-// routes/reportRoutes.js
 import { Router } from "express";
 import { authenticateToken } from "../middleware/jwtToken.js";
 import {
