@@ -1,7 +1,10 @@
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
-import Rapport from '../models/report.model.js';
-import { reportGeneratorPrompt, weeklyReportGeneratorPrompt } from '../lib/utils/reportPromt.js';
+import OpenAI from "openai";
+import dotenv from "dotenv";
+import Rapport from "../models/report.model.js";
+import {
+  reportGeneratorPrompt,
+  weeklyReportGeneratorPrompt,
+} from "../lib/utils/reportPromt.js";
 
 dotenv.config();
 
@@ -14,10 +17,10 @@ export const processReports = async (req, res) => {
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: "gpt-4",
       messages: [
-        { role: 'system', content: reportGeneratorPrompt },
-        { role: 'user', content: JSON.stringify(reports) },
+        { role: "system", content: reportGeneratorPrompt },
+        { role: "user", content: JSON.stringify(reports) },
       ],
     });
 
@@ -25,8 +28,11 @@ export const processReports = async (req, res) => {
 
     res.json({ processedData });
   } catch (error) {
-    console.error('Error with OpenAI API:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Fejl ved behandling af data med OpenAI.' });
+    console.error(
+      "Error with OpenAI API:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Fejl ved behandling af data med OpenAI." });
   }
 };
 
@@ -34,20 +40,28 @@ export const processWeeklyReports = async (req, res) => {
   const { reportTypeIds } = req.body;
 
   try {
-    const reports = await Rapport.getWeeklyReportsByTypeIds(reportTypeIds);
+    const reports = await Rapport.getReportsWithCommentsByTypeIds(
+      reportTypeIds,
+      7
+    );
 
     const reportContents = reports.map((report) => ({
       content: report.content,
       created_at: report.created_at,
       user: `${report.firstname} ${report.lastname}`,
       report_type: report.report_type,
+      comments: report.comments.map((comment) => ({
+        content: comment.content,
+        created_at: comment.created_at,
+        user: `${comment.firstname} ${comment.lastname}`,
+      })),
     }));
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: "gpt-4",
       messages: [
-        { role: 'system', content: weeklyReportGeneratorPrompt },
-        { role: 'user', content: JSON.stringify(reportContents) },
+        { role: "system", content: weeklyReportGeneratorPrompt },
+        { role: "user", content: JSON.stringify(reportContents) },
       ],
     });
 
@@ -55,7 +69,10 @@ export const processWeeklyReports = async (req, res) => {
 
     res.json({ processedData });
   } catch (error) {
-    console.error('Error with OpenAI API:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Fejl ved behandling af data med OpenAI.' });
+    console.error(
+      "Error with OpenAI API:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Fejl ved behandling af data med OpenAI." });
   }
 };
