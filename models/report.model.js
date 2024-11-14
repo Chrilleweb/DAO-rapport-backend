@@ -89,6 +89,26 @@ class Rapport {
       throw new Error(error);
     }
   }
+
+  static async getFullReportById(reportId) {
+    try {
+      const [rows] = await connection.query(
+        `
+        SELECT report_fields.id, report_fields.content, report_fields.created_at,
+               report_fields.user_id, report_fields.report_type_id,
+               users.firstname, users.lastname, report_types.report_type
+        FROM report_fields
+        JOIN users ON report_fields.user_id = users.id
+        JOIN report_types ON report_fields.report_type_id = report_types.id
+        WHERE report_fields.id = ?
+        `,
+        [reportId]
+      );
+      return rows[0]; // Return the first row (should only be one)
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
 
 export default Rapport;
