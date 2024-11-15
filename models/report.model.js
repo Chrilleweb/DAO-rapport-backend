@@ -90,7 +90,11 @@ class Rapport {
     }
   }
 
-  static async getReportsWithCommentsByTypeIdsAndDates(reportTypeIds, startDate, endDate) {
+  static async getReportsWithCommentsByTypeIdsAndDates(
+    reportTypeIds,
+    startDate,
+    endDate
+  ) {
     try {
       const placeholders = reportTypeIds.map(() => "?").join(",");
       const [rows] = await connection.query(
@@ -164,7 +168,65 @@ class Rapport {
         `,
         [reportId]
       );
-      return rows[0]; // Return the first row (should only be one)
+      return rows[0]; // Fjern kaldet til convertToUTC her
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  
+
+  static async createScheduledReport(data) {
+    try {
+      const { user_id, content, report_type_id, scheduled_time } = data;
+      const [result] = await connection.query(
+        `INSERT INTO schedule_reports (user_id, content, report_type_id, scheduled_time) VALUES (?, ?, ?, ?)`,
+        [user_id, content, report_type_id, scheduled_time]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async insertScheduledReport(scheduleReport) {
+    try {
+      const { user_id, content, report_type_id } = scheduleReport;
+      const [result] = await connection.query(
+        `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
+        [user_id, content, report_type_id]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }    
+
+  // Hent planlagte rapporter, der skal sendes
+  static async getDueScheduledReports() {
+    try {
+      const [rows] = await connection.query(
+        `SELECT sr.id, sr.user_id, sr.content, sr.report_type_id, sr.scheduled_time
+         FROM schedule_reports sr
+         WHERE sr.scheduled_time <= NOW() AND sr.is_sent = FALSE`
+      );
+  
+      return rows.map((row) => ({
+        ...row,
+        scheduled_time: row.scheduled_time ? new Date(row.scheduled_time) : null,
+      }));
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Marker rapporten som sendt
+  static async markScheduledReportAsSent(scheduleReportId) {
+    try {
+      const [result] = await connection.query(
+        `UPDATE schedule_reports SET is_sent = TRUE WHERE id = ?`,
+        [scheduleReportId]
+      );
+      return result;
     } catch (error) {
       throw new Error(error);
     }
