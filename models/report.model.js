@@ -202,22 +202,30 @@ class Rapport {
         [user_id, content, report_type_id]
       );
 
-      const newReportId = result.insertId;
+      const newReportId = result.insertId; // Få det nye rapport-ID
 
       // Kopier kommentarer fra den planlagte rapport til den nye aktive rapport
       const [comments] = await connection.query(
-        `SELECT content, user_id FROM schedule_report_comments WHERE schedule_report_id = ?`,
+        `SELECT content, user_id, created_at, updated_at 
+         FROM schedule_report_comments 
+         WHERE schedule_report_id = ?`,
         [scheduleReportId]
       );
 
       for (const comment of comments) {
         await connection.query(
-          `INSERT INTO report_comments (report_id, user_id, content) VALUES (?, ?, ?)`,
-          [newReportId, comment.user_id, comment.content]
+          `INSERT INTO report_comments (report_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+          [
+            newReportId,
+            comment.user_id,
+            comment.content,
+            comment.created_at, // Kopier det oprindelige 'created_at'
+            comment.updated_at || comment.created_at, // Kopier 'updated_at', eller brug 'created_at' hvis det ikke findes
+          ]
         );
       }
 
-      return result;
+      return result; // Returner resultatet af den indsatte rapport
     } catch (error) {
       throw new Error(error);
     }
