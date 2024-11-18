@@ -2,6 +2,36 @@ import connection from "../config/db.js"; // Importer din databaseforbindelse
 import convertToUTC from "dato-konverter";
 
 class Rapport {
+// opret daglig rapport 
+  static async createDailyReport() {
+    try {
+      const [daoUserRows] = await connection.query(
+        "SELECT id FROM users WHERE email = ?",
+        ["dao@dao.as"]
+      );
+
+      if (!daoUserRows || daoUserRows.length === 0) {
+        throw new Error("DAO user not found");
+      }
+
+      const user_id = daoUserRows[0].id;
+
+      const content =
+        "Kontroltæl oplag til Bornholm og noter oplag i STAT. Hvis der er specielle udgaver til ABO/løssalg skal Bornholms tidene informeres. Optalt af og status på optælling:";
+
+      const report_type_id = 1; // ALLE rapporttype
+
+      const [result] = await connection.query(
+        `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
+        [user_id, content, report_type_id]
+      );
+
+      return result.insertId;
+    } catch (error) {
+      console.error("Error creating daily report:", error.message);
+      throw error;
+    }
+  }
   // Opret en ny rapport
   static async create(newReportField) {
     try {

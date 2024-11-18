@@ -30,6 +30,7 @@
     "ip-range-check": "^0.2.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.10.1",
+    "node-cron": "^3.0.3",
     "openai": "^4.71.1",
     "socket.io": "^4.8.0",
     "zxcvbn": "^4.4.2"
