@@ -168,7 +168,7 @@ class Rapport {
         `,
         [reportId]
       );
-      return rows[0]; // Fjern kaldet til convertToUTC her
+      return rows[0];
     } catch (error) {
       throw new Error(error);
     }
