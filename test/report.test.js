@@ -14,7 +14,7 @@ describe("Reports API Tests", () => {
   before((done) => {
     request(server)
       .post("/login")
-      .send({ email: "test@mail.com", password: "testpassword" })
+      .send({ email: "test@mail.com", password: "testpassword!" })
       .end((err, res) => {
         if (err) return done(err);
         userToken = res.headers["set-cookie"][0].split(";")[0].split("=")[1]; // Extract token from cookie

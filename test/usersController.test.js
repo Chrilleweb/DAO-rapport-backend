@@ -13,7 +13,7 @@ describe("API Tests", () => {
   it("should successfully login with correct email and password", (done) => {
     request(server)
       .post("/login")
-      .send({ email: "test@mail.com", password: "testpassword" })
+      .send({ email: "test@mail.com", password: "testpassword!" })
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(200); // Correct status

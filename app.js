@@ -3,7 +3,6 @@ import bodyParser from "body-parser";
 import helmet from "helmet";
 import apiRoutes from "./routes/apiRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
-import reportRoutes from "./routes/reportRoutes.js";
 import openaiRoutes from "./routes/openaiRoutes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -57,7 +56,6 @@ app.use(checkIP);
 // routes
 app.use(apiRoutes);
 app.use("/auth", authRoutes);
-app.use("/reports", reportRoutes);
 app.use('/api/openai', openaiRoutes);
 
 const PORT = process.env.PORT || 8080;
