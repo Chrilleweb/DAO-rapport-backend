@@ -101,6 +101,8 @@ export const login_post = async (req, res) => {
     if (isDefaultPassword) {
       res.cookie("requiresPasswordChange", "true", {
         httpOnly: true,
+        secure: true,
+        sameSite: "none",
         path: "/",
       }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
