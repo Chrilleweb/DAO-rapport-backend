@@ -58,6 +58,18 @@ class Rapport {
     }
   }
 
+  static async updateReportType(reportId, updatedReportTypeId) {
+    try {
+      const [result] = await connection.query(
+        "UPDATE report_fields SET report_type_id = ? WHERE id = ?",
+        [updatedReportTypeId, reportId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   // Hent rapporter med kommentarer for et givent interval
   static async getReportsWithCommentsByTypeIds(reportTypeIds, intervalDays) {
     try {
@@ -310,6 +322,18 @@ class Rapport {
       const [result] = await connection.query(
         "UPDATE schedule_reports SET ? WHERE id = ? AND user_id = ?",
         [updatedFields, reportId, userId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async updateScheduledReportType(reportId, updatedReportTypeId) {
+    try {
+      const [result] = await connection.query(
+        "UPDATE schedule_reports SET report_type_id = ? WHERE id = ?",
+        [updatedReportTypeId, reportId]
       );
       return result;
     } catch (error) {

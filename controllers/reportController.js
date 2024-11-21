@@ -38,30 +38,51 @@ class ReportController {
   static async updateReport(data) {
     const { reportId, userId, updatedContent, updatedReportTypeId } = data;
     try {
-      const updatedFields = { content: updatedContent };
+      // Hvis der er en opdatering af report_type_id, udfør den uden at tjekke userId
       if (updatedReportTypeId !== undefined) {
-        updatedFields.report_type_id = updatedReportTypeId;
-      }
-      const result = await Rapport.update(reportId, userId, updatedFields);
-      if (result.affectedRows > 0) {
-        // Hent den opdaterede rapport
-        const updatedReport = await Rapport.getFullReportById(reportId);
-        const reportData = {
-          id: updatedReport.id,
-          content: updatedReport.content,
-          user_id: updatedReport.user_id,
-          report_type_id: updatedReport.report_type_id,
-          created_at: convertToUTC(updatedReport.created_at),
-          firstname: updatedReport.firstname,
-          lastname: updatedReport.lastname,
-          report_type: updatedReport.report_type,
-        };
-        return reportData;
-      } else {
-        throw new Error(
-          "Du har ikke tilladelse til at redigere denne rapport."
+        const typeUpdateResult = await Rapport.updateReportType(
+          reportId,
+          updatedReportTypeId
         );
+        if (typeUpdateResult.affectedRows === 0) {
+          throw new Error(
+            "Rapporttypen blev ikke opdateret. Rapporten findes ikke."
+          );
+        }
       }
+
+      // Hvis der er en opdatering af content, udfør den kun hvis userId matcher
+      if (updatedContent !== undefined) {
+        const updatedFields = { content: updatedContent };
+        const contentUpdateResult = await Rapport.update(
+          reportId,
+          userId,
+          updatedFields
+        );
+        if (contentUpdateResult.affectedRows === 0) {
+          throw new Error(
+            "Du har ikke tilladelse til at redigere indholdet af denne rapport."
+          );
+        }
+      }
+
+      // Hent den opdaterede rapport
+      const updatedReport = await Rapport.getFullReportById(reportId);
+      if (!updatedReport) {
+        throw new Error("Rapporten blev ikke fundet.");
+      }
+
+      const reportData = {
+        id: updatedReport.id,
+        content: updatedReport.content,
+        user_id: updatedReport.user_id,
+        report_type_id: updatedReport.report_type_id,
+        created_at: convertToUTC(updatedReport.created_at),
+        firstname: updatedReport.firstname,
+        lastname: updatedReport.lastname,
+        report_type: updatedReport.report_type,
+      };
+      return reportData;
     } catch (error) {
       throw new Error("Error editing report: " + error.message);
     }
@@ -160,30 +181,47 @@ class ReportController {
       updatedReportTypeId,
     } = data;
     try {
-      const updatedFields = { content: updatedContent };
-
-      if (updatedScheduledTime) {
-        updatedFields.scheduled_time = updatedScheduledTime;
-      }
-
+      // Hvis der er en opdatering af report_type_id, udfør den uden at tjekke userId
       if (updatedReportTypeId !== undefined) {
-        updatedFields.report_type_id = updatedReportTypeId;
-      }
-
-      const result = await Rapport.updateScheduledReport(
-        reportId,
-        userId,
-        updatedFields
-      );
-
-      if (result.affectedRows > 0) {
-        const [updatedReport] = await Rapport.getScheduledReportById(reportId);
-        return updatedReport;
-      } else {
-        throw new Error(
-          "Du har ikke tilladelse til at redigere denne planlagte rapport."
+        const typeUpdateResult = await Rapport.updateScheduledReportType(
+          reportId,
+          updatedReportTypeId
         );
+        if (typeUpdateResult.affectedRows === 0) {
+          throw new Error(
+            "Rapporttypen blev ikke opdateret. Den planlagte rapport findes ikke."
+          );
+        }
       }
+
+      // Hvis der er en opdatering af content eller scheduled_time, udfør dem kun hvis userId matcher
+      if (updatedContent !== undefined || updatedScheduledTime !== undefined) {
+        const updatedFields = {};
+        if (updatedContent !== undefined) {
+          updatedFields.content = updatedContent;
+        }
+        if (updatedScheduledTime !== undefined) {
+          updatedFields.scheduled_time = updatedScheduledTime;
+        }
+        const contentUpdateResult = await Rapport.updateScheduledReport(
+          reportId,
+          userId,
+          updatedFields
+        );
+        if (contentUpdateResult.affectedRows === 0) {
+          throw new Error(
+            "Du har ikke tilladelse til at redigere denne planlagte rapport."
+          );
+        }
+      }
+
+      // Hent den opdaterede planlagte rapport
+      const [updatedReport] = await Rapport.getScheduledReportById(reportId);
+      if (!updatedReport) {
+        throw new Error("Den planlagte rapport blev ikke fundet.");
+      }
+
+      return updatedReport;
     } catch (error) {
       throw new Error("Error editing scheduled report: " + error.message);
     }
