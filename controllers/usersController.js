@@ -92,8 +92,8 @@ export const login_post = async (req, res) => {
     // Set the token in an HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: false, // set to false for BETA testing
+      sameSite: "lax", // csrf protection
       maxAge: 10 * 60 * 60 * 1000, // 10 hours
     });
 
