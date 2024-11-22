@@ -54,7 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(checkIP);
 
 // routes
-app.use(apiRoutes);
+app.use("/api", apiRoutes);
 app.use("/auth", authRoutes);
 app.use('/api/openai', openaiRoutes);
 
