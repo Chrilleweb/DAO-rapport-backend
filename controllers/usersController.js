@@ -105,6 +105,7 @@ export const login_post = async (req, res) => {
         secure: true,
         sameSite: "none",
         domain: ".up.railway.app",
+        path: "/",
       }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
     }
@@ -150,7 +151,12 @@ export const change_password_post = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     await User.updatePassword(userId, hashedPassword);
 
-    res.clearCookie("requiresPasswordChange", { path: "/" });
+    res.clearCookie("requiresPasswordChange", {
+      path: "/",
+      domain: ".up.railway.app",
+      secure: true,
+      sameSite: "none",
+    });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
     console.error(error);
