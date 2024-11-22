@@ -94,6 +94,7 @@ export const login_post = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: "none", // For cross-site cookies (production)
+      domain: ".up.railway.app", // For subdomains
       maxAge: 10 * 60 * 60 * 1000, // 10 hours
     });
 
@@ -103,6 +104,7 @@ export const login_post = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        domain: ".up.railway.app",
         path: "/",
       }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
