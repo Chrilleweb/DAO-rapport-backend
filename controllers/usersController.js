@@ -105,7 +105,6 @@ export const login_post = async (req, res) => {
         secure: true,
         sameSite: "none",
         domain: ".up.railway.app",
-        path: "/",
       }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
     }
