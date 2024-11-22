@@ -13,7 +13,7 @@ describe("Reports API Tests", () => {
   // Login for at få token
   before((done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "test@mail.com", password: "testpassword!" })
       .end((err, res) => {
         if (err) return done(err);

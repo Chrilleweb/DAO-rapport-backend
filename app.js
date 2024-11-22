@@ -39,9 +39,9 @@ app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL, // URL'en til din SvelteKit frontend
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE"], // Tilladte metoder
-  credentials: true, // Tillader cookies og HTTP-autentificering
+  credentials: true, // Tillader cookies
   optionsSuccessStatus: 200 // For ældre browsere
 };
 

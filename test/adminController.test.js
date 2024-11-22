@@ -12,7 +12,7 @@ let adminToken = "";
 describe("Admin Tests", () => {
   it("should successfully login with admin role", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "testadmin@mail.com", password: "testadminpassword" })
       .end((err, res) => {
         if (err) return done(err);
@@ -27,7 +27,7 @@ describe("Admin Tests", () => {
 
   it("should display 'Invalid email' message for incorrect email", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "wrongadmin@mail.com", password: "testadminpassword" })
       .end((err, res) => {
         if (err) return done(err);

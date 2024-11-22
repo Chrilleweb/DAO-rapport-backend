@@ -12,7 +12,7 @@ let userToken = "";
 describe("API Tests", () => {
   it("should successfully login with correct email and password", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "test@mail.com", password: "testpassword!" })
       .end((err, res) => {
         if (err) return done(err);
@@ -25,20 +25,9 @@ describe("API Tests", () => {
       });
   });
 
-  it("should get / with status 200", (done) => {
-    request(server)
-      .get("/")
-      .end((err, res) => {
-        if (err) return done(err);
-        expect(res.status).to.equal(200); // Check status
-        expect(res.body).to.have.property("message", "Welcome to the API"); // Check response body
-        done();
-      });
-  });
-
   it("should display 'Invalid email' message for incorrect email", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "wrong@mail.com", password: "testpassword" })
       .end((err, res) => {
         if (err) return done(err);
@@ -50,7 +39,7 @@ describe("API Tests", () => {
 
   it("should display 'Invalid password' message for incorrect password", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "test@mail.com", password: "wrongpassword" })
       .end((err, res) => {
         if (err) return done(err);
@@ -62,7 +51,7 @@ describe("API Tests", () => {
 
   it("should display 'Please fill in all fields' message for empty fields", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "", password: "" })
       .end((err, res) => {
         if (err) return done(err);
@@ -77,7 +66,7 @@ describe("API Tests", () => {
 
   it("should display 'Please fill in all fields' message for missing email", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ password: "testpassword" })
       .end((err, res) => {
         if (err) return done(err);
@@ -92,7 +81,7 @@ describe("API Tests", () => {
 
   it("should display 'Please fill in all fields' message for missing password", (done) => {
     request(server)
-      .post("/login")
+      .post("/api/login")
       .send({ email: "test@mail.com" })
       .end((err, res) => {
         if (err) return done(err);

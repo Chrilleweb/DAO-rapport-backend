@@ -93,8 +93,8 @@ export const login_post = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "none", // For cross-site cookies (production)
-      domain: ".up.railway.app", // For subdomains
+      sameSite: process.env.COOKIE_SAMESITE,
+      domain: process.env.COOKIE_DOMAIN,
       maxAge: 10 * 60 * 60 * 1000, // 10 hours
     });
 
@@ -103,8 +103,8 @@ export const login_post = async (req, res) => {
       res.cookie("requiresPasswordChange", "true", {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
-        domain: ".up.railway.app",
+        sameSite: process.env.COOKIE_SAMESITE,
+        domain: process.env.COOKIE_DOMAIN,
         path: "/",
       }); // HttpOnly cookie for security -  '/' can only be accessed by the server
       return res.status(202).json({ message: "Please change your password" });
@@ -154,8 +154,8 @@ export const change_password_post = async (req, res) => {
     res.clearCookie("requiresPasswordChange", {
       path: "/",
       domain: ".up.railway.app",
-      secure: true,
-      sameSite: "none",
+      sameSite: process.env.COOKIE_SAMESITE,
+    domain: process.env.COOKIE_DOMAIN,
     });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
