@@ -64,7 +64,7 @@ class User {
   static async findAll() {
     try {
       const [rows] = await connection.query(
-        "SELECT * FROM users ORDER BY role ASC, firstname ASC, lastname ASC"
+        "SELECT * FROM users WHERE role != 'system' ORDER BY role ASC, firstname ASC, lastname ASC"
       );
       return rows;
     } catch (error) {
