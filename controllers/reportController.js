@@ -175,7 +175,7 @@ class ReportController {
   // Hent alle planlagte rapporter
   static async getScheduledReports() {
     try {
-      const scheduledReports = await Rapport.getAllScheduledReports();
+      const scheduledReports = await Rapport.getScheduledReportsWithComments();
       return scheduledReports;
     } catch (error) {
       throw new Error("Error fetching scheduled reports: " + error.message);
@@ -185,7 +185,7 @@ class ReportController {
   // Opret en planlagt rapport
   static async createScheduledReport(data) {
     try {
-      const { user_id, content, scheduled_time, report_type_id } = data;
+      const { user_id, content, scheduled_time, report_type_id, images } = data;
       if (!report_type_id) {
         throw new Error("report_type_id er ikke defineret eller ugyldigt");
       }
@@ -195,13 +195,22 @@ class ReportController {
         content,
         report_type_id,
         scheduled_time,
+        images, // Pass images
       });
 
       const [newScheduledReport] = await Rapport.getScheduledReportById(
         result.insertId
       );
 
-      return newScheduledReport;
+      // Get images for the new scheduled report
+      const imagesData = await Rapport.getImagesByScheduledReportId(
+        result.insertId
+      );
+
+      return {
+        ...newScheduledReport,
+        images: imagesData,
+      };
     } catch (error) {
       throw new Error("Error scheduling report: " + error.message);
     }
@@ -215,9 +224,11 @@ class ReportController {
       updatedContent,
       updatedScheduledTime,
       updatedReportTypeId,
+      imagesToAdd,
+      imagesToRemove,
     } = data;
     try {
-      // Hvis der er en opdatering af report_type_id, udfør den uden at tjekke userId
+      // Update report_type_id if necessary
       if (updatedReportTypeId !== undefined) {
         const typeUpdateResult = await Rapport.updateScheduledReportType(
           reportId,
@@ -230,7 +241,7 @@ class ReportController {
         }
       }
 
-      // Hvis der er en opdatering af content eller scheduled_time, udfør dem kun hvis userId matcher
+      // Update content or scheduled_time if necessary
       if (updatedContent !== undefined || updatedScheduledTime !== undefined) {
         const updatedFields = {};
         if (updatedContent !== undefined) {
@@ -251,13 +262,33 @@ class ReportController {
         }
       }
 
-      // Hent den opdaterede planlagte rapport
+      // Remove images if necessary
+      if (imagesToRemove && Array.isArray(imagesToRemove)) {
+        for (const imageId of imagesToRemove) {
+          await Rapport.deleteImageByIdFromScheduledReport(imageId);
+        }
+      }
+
+      // Add new images if necessary
+      if (imagesToAdd && Array.isArray(imagesToAdd)) {
+        for (const imageData of imagesToAdd) {
+          await Rapport.addImageToScheduledReport(reportId, imageData);
+        }
+      }
+
+      // Get the updated scheduled report
       const [updatedReport] = await Rapport.getScheduledReportById(reportId);
       if (!updatedReport) {
         throw new Error("Den planlagte rapport blev ikke fundet.");
       }
 
-      return updatedReport;
+      // Get images
+      const imagesData = await Rapport.getImagesByScheduledReportId(reportId);
+
+      return {
+        ...updatedReport,
+        images: imagesData,
+      };
     } catch (error) {
       throw new Error("Error editing scheduled report: " + error.message);
     }
@@ -269,19 +300,19 @@ class ReportController {
       const dueReports = await Rapport.getDueScheduledReports();
 
       for (const report of dueReports) {
-        // Indsæt rapporten i report_fields
+        // Insert the report into report_fields
         const insertResult = await Rapport.insertScheduledReport(report);
 
-        // Marker rapporten som sendt
+        // Mark the scheduled report as sent
         await Rapport.markScheduledReportAsSent(report.id);
 
-        // Hent den fulde rapport for at sende til klienterne
+        // Get the full report to send to clients
         const fullReport = await Rapport.getFullReportById(
           insertResult.insertId
         );
 
         if (fullReport) {
-          // Hent kommentarer for den nye rapport
+          // Get comments for the new report
           const comments = await Comment.getCommentsByReportId(
             insertResult.insertId
           );
@@ -293,11 +324,12 @@ class ReportController {
             user_id: Number(comment.user_id),
           }));
 
-          // Emit rapport med dens kommentarer
+          // Emit report with its comments and images
           io.emit("new report", {
             ...fullReport,
             created_at: convertToUTC(fullReport.created_at),
             comments: formattedComments,
+            images: fullReport.images, // Include images
           });
         }
       }

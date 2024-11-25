@@ -1,5 +1,6 @@
 import connection from "../config/db.js"; // Importer din databaseforbindelse
 import convertToUTC from "dato-konverter";
+import ScheduleReportComment from "../models/scheduleReportComment.model.js";
 
 class Rapport {
   static async addImage(reportId, imageData) {
@@ -13,7 +14,7 @@ class Rapport {
       throw new Error(error);
     }
   }
-  
+
   // Hent vedhæftede billeder for en rapport
   static async getImagesByReportId(reportId) {
     try {
@@ -26,7 +27,6 @@ class Rapport {
       throw new Error(error);
     }
   }
-  
 
   static async deleteImageById(imageId) {
     try {
@@ -40,7 +40,45 @@ class Rapport {
     }
   }
 
-// opret daglig rapport 
+  static async addImageToScheduledReport(scheduleReportId, imageData) {
+    try {
+      const [result] = await connection.query(
+        "INSERT INTO schedule_report_images (schedule_report_id, image_data) VALUES (?, ?)",
+        [scheduleReportId, imageData]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Get images by scheduled report ID
+  static async getImagesByScheduledReportId(scheduleReportId) {
+    try {
+      const [rows] = await connection.query(
+        "SELECT id, image_data FROM schedule_report_images WHERE schedule_report_id = ?",
+        [scheduleReportId]
+      );
+      return rows;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Delete image by ID from scheduled report
+  static async deleteImageByIdFromScheduledReport(imageId) {
+    try {
+      const [result] = await connection.query(
+        "DELETE FROM schedule_report_images WHERE id = ?",
+        [imageId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // opret daglig rapport
   static async createDailyReport() {
     try {
       const [daoUserRows] = await connection.query(
@@ -268,11 +306,21 @@ class Rapport {
 
   static async createScheduledReport(data) {
     try {
-      const { user_id, content, report_type_id, scheduled_time } = data;
+      const { user_id, content, report_type_id, scheduled_time, images } = data;
       const [result] = await connection.query(
         `INSERT INTO schedule_reports (user_id, content, report_type_id, scheduled_time) VALUES (?, ?, ?, ?)`,
         [user_id, content, report_type_id, scheduled_time]
       );
+
+      const scheduleReportId = result.insertId;
+
+      // Add images if any
+      if (images && images.length > 0) {
+        for (const imageData of images) {
+          await this.addImageToScheduledReport(scheduleReportId, imageData);
+        }
+      }
+
       return result;
     } catch (error) {
       throw new Error(error);
@@ -287,23 +335,23 @@ class Rapport {
         content,
         report_type_id,
       } = scheduleReport;
-
-      // Indsæt rapporten i report_fields
+  
+      // Insert into report_fields
       const [result] = await connection.query(
         `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
         [user_id, content, report_type_id]
       );
-
-      const newReportId = result.insertId; // Få det nye rapport-ID
-
-      // Kopier kommentarer fra den planlagte rapport til den nye aktive rapport
+  
+      const newReportId = result.insertId;
+  
+      // Copy comments
       const [comments] = await connection.query(
         `SELECT content, user_id, created_at, updated_at 
          FROM schedule_report_comments 
          WHERE schedule_report_id = ?`,
         [scheduleReportId]
       );
-
+  
       for (const comment of comments) {
         await connection.query(
           `INSERT INTO report_comments (report_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
@@ -311,17 +359,26 @@ class Rapport {
             newReportId,
             comment.user_id,
             comment.content,
-            comment.created_at, // Kopier det oprindelige 'created_at'
-            comment.updated_at || comment.created_at, // Kopier 'updated_at', eller brug 'created_at' hvis det ikke findes
+            comment.created_at,
+            comment.updated_at || comment.created_at,
           ]
         );
       }
-
-      return result; // Returner resultatet af den indsatte rapport
+  
+      // Copy images
+      const images = await this.getImagesByScheduledReportId(scheduleReportId);
+      for (const image of images) {
+        await connection.query(
+          `INSERT INTO report_images (report_id, image_data, created_at) VALUES (?, ?, ?)`,
+          [newReportId, image.image_data, image.created_at]
+        );
+      }
+  
+      return result;
     } catch (error) {
       throw new Error(error);
     }
-  }
+  }  
 
   // Hent planlagte rapporter, der skal sendes
   static async getAllScheduledReports() {
@@ -430,6 +487,7 @@ class Rapport {
       for (const report of scheduledReports) {
         const comments =
           await ScheduleReportComment.getCommentsByScheduleReportId(report.id);
+        const images = await this.getImagesByScheduledReportId(report.id);
         reportsWithComments.push({
           ...report,
           comments: comments.map((comment) => ({
@@ -440,6 +498,7 @@ class Rapport {
             schedule_report_id: Number(comment.schedule_report_id),
             user_id: Number(comment.user_id),
           })),
+          images, // Include images
         });
       }
 
