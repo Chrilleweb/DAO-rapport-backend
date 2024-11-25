@@ -6,7 +6,20 @@ class ReportController {
   // Opret en ny rapport
   static async createReport(data) {
     try {
-      const newReport = await Rapport.create(data);
+      const { content, user_id, report_type_id, images } = data;
+
+      const newReport = await Rapport.create({
+        content,
+        user_id,
+        report_type_id,
+      });
+
+      // Hvis der er et vedhæftet billede, tilføj det
+      if (images && images.length > 0) {
+        for (const image of images) {
+          await Rapport.addImage(newReport.insertId, image);
+        }
+      }
 
       // Hent rapporten med detaljer
       const reportWithDetails = await Rapport.getFullReportById(
@@ -28,6 +41,7 @@ class ReportController {
         ...reportWithDetails,
         created_at: convertToUTC(reportWithDetails.created_at),
         comments: formattedComments,
+        images: reportWithDetails.images,
       };
     } catch (error) {
       throw new Error("Error creating new report: " + error.message);
@@ -36,9 +50,16 @@ class ReportController {
 
   // Opdater en eksisterende rapport
   static async updateReport(data) {
-    const { reportId, userId, updatedContent, updatedReportTypeId } = data;
+    const {
+      reportId,
+      userId,
+      updatedContent,
+      updatedReportTypeId,
+      imagesToAdd,
+      imagesToRemove,
+    } = data;
     try {
-      // Hvis der er en opdatering af report_type_id, udfør den uden at tjekke userId
+      // Opdater report_type_id hvis nødvendigt
       if (updatedReportTypeId !== undefined) {
         const typeUpdateResult = await Rapport.updateReportType(
           reportId,
@@ -51,7 +72,7 @@ class ReportController {
         }
       }
 
-      // Hvis der er en opdatering af content, udfør den kun hvis userId matcher
+      // Opdater content hvis nødvendigt
       if (updatedContent !== undefined) {
         const updatedFields = { content: updatedContent };
         const contentUpdateResult = await Rapport.update(
@@ -63,6 +84,20 @@ class ReportController {
           throw new Error(
             "Du har ikke tilladelse til at redigere indholdet af denne rapport."
           );
+        }
+      }
+
+      // Fjern billeder hvis nødvendigt
+      if (imagesToRemove && Array.isArray(imagesToRemove)) {
+        for (const imageId of imagesToRemove) {
+          await Rapport.deleteImageById(imageId);
+        }
+      }
+
+      // Tilføj nye billeder hvis nødvendigt
+      if (imagesToAdd && Array.isArray(imagesToAdd)) {
+        for (const imageData of imagesToAdd) {
+          await Rapport.addImage(reportId, imageData);
         }
       }
 
@@ -81,6 +116,7 @@ class ReportController {
         firstname: updatedReport.firstname,
         lastname: updatedReport.lastname,
         report_type: updatedReport.report_type,
+        images: updatedReport.images, // Inkluder de opdaterede billeder
       };
       return reportData;
     } catch (error) {

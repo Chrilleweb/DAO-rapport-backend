@@ -2,6 +2,44 @@ import connection from "../config/db.js"; // Importer din databaseforbindelse
 import convertToUTC from "dato-konverter";
 
 class Rapport {
+  static async addImage(reportId, imageData) {
+    try {
+      const [result] = await connection.query(
+        "INSERT INTO report_images (report_id, image_data) VALUES (?, ?)",
+        [reportId, imageData]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  
+  // Hent vedhæftede billeder for en rapport
+  static async getImagesByReportId(reportId) {
+    try {
+      const [rows] = await connection.query(
+        "SELECT id, image_data FROM report_images WHERE report_id = ?",
+        [reportId]
+      );
+      return rows;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  
+
+  static async deleteImageById(imageId) {
+    try {
+      const [result] = await connection.query(
+        "DELETE FROM report_images WHERE id = ?",
+        [imageId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
 // opret daglig rapport 
   static async createDailyReport() {
     try {
@@ -126,7 +164,11 @@ class Rapport {
         }
       });
 
-      return Array.from(reportsMap.values());
+      const reports = Array.from(reportsMap.values());
+      for (const report of reports) {
+        report.images = await this.getImagesByReportId(report.id);
+      }
+      return reports;
     } catch (error) {
       throw new Error(error);
     }
@@ -190,7 +232,11 @@ class Rapport {
         }
       });
 
-      return Array.from(reportsMap.values());
+      const reports = Array.from(reportsMap.values());
+      for (const report of reports) {
+        report.images = await this.getImagesByReportId(report.id);
+      }
+      return reports;
     } catch (error) {
       throw new Error(error);
     }
@@ -210,7 +256,11 @@ class Rapport {
         `,
         [reportId]
       );
-      return rows[0];
+      const report = rows[0];
+      if (report) {
+        report.images = await this.getImagesByReportId(report.id);
+      }
+      return report;
     } catch (error) {
       throw new Error(error);
     }
