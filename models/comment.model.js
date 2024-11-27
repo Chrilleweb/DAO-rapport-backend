@@ -5,7 +5,7 @@ class Comment {
   static async addImage(commentId, imageData) {
     try {
       const [result] = await connection.query(
-        "INSERT INTO comment_images (comment_id, image_data) VALUES (?, ?)",
+        "INSERT INTO report_comments_images (comment_id, image_data) VALUES (?, ?)",
         [commentId, imageData]
       );
       return result;
@@ -18,7 +18,7 @@ class Comment {
   static async getImagesByCommentId(commentId) {
     try {
       const [rows] = await connection.query(
-        "SELECT id, image_data FROM comment_images WHERE comment_id = ?",
+        "SELECT id, image_data FROM report_comments_images WHERE comment_id = ?",
         [commentId]
       );
       return rows;
@@ -31,7 +31,7 @@ class Comment {
   static async deleteImageById(imageId) {
     try {
       const [result] = await connection.query(
-        "DELETE FROM comment_images WHERE id = ?",
+        "DELETE FROM report_comments_images WHERE id = ?",
         [imageId]
       );
       return result;

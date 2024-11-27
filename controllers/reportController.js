@@ -316,9 +316,15 @@ class ReportController {
           const comments = await Comment.getCommentsByReportId(
             insertResult.insertId
           );
+
+          // Hent billeder for hver kommentar
+          for (const comment of comments) {
+            comment.images = await Comment.getImagesByCommentId(comment.id);
+            comment.created_at = convertToUTC(comment.created_at);
+          }
+
           const formattedComments = comments.map((comment) => ({
             ...comment,
-            created_at: convertToUTC(comment.created_at),
             id: Number(comment.id),
             report_id: Number(comment.report_id),
             user_id: Number(comment.user_id),

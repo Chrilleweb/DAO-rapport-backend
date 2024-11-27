@@ -1,6 +1,44 @@
 import connection from "../config/db.js";
 
 class ScheduleReportComment {
+
+    static async addImage(commentId, imageData) {
+        try {
+          const [result] = await connection.query(
+            `INSERT INTO schedule_report_comments_images (comment_id, image_data) VALUES (?, ?)`,
+            [commentId, imageData]
+          );
+          return result;
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+    
+      // Hent billeder for en given kommentar
+      static async getImagesByCommentId(commentId) {
+        try {
+          const [rows] = await connection.query(
+            `SELECT id, image_data FROM schedule_report_comments_images WHERE comment_id = ?`,
+            [commentId]
+          );
+          return rows;
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
+    
+      // Slet et billede ved dets ID
+      static async deleteImageById(imageId) {
+        try {
+          const [result] = await connection.query(
+            `DELETE FROM schedule_report_comments_images WHERE id = ?`,
+            [imageId]
+          );
+          return result;
+        } catch (error) {
+          throw new Error(error);
+        }
+      }
   // Hent alle kommentarer for en specifik planlagt rapport
   static async getCommentsByScheduleReportId(scheduleReportId) {
     try {

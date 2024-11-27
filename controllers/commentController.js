@@ -13,6 +13,7 @@ class CommentController {
       for (const comment of allComments) {
         comment.images = await Comment.getImagesByCommentId(comment.id);
         comment.created_at = convertToUTC(comment.created_at);
+        comment.updated_at = convertToUTC(comment.updated_at);
       }
 
       // Konverter data typer
@@ -135,10 +136,18 @@ class CommentController {
       for (const report of scheduleReports) {
         const comments =
           await ScheduleReportComment.getCommentsByScheduleReportId(report.id);
+
+        // Hent billeder for hver kommentar
+        for (const comment of comments) {
+          comment.images = await ScheduleReportComment.getImagesByCommentId(
+            comment.id
+          );
+          comment.created_at = convertToUTC(comment.created_at);
+          comment.updated_at = convertToUTC(comment.updated_at);
+        }
+
         allComments[report.id] = comments.map((comment) => ({
           ...comment,
-          created_at: convertToUTC(comment.created_at),
-          updated_at: convertToUTC(comment.updated_at),
           id: Number(comment.id),
           schedule_report_id: Number(comment.schedule_report_id),
           user_id: Number(comment.user_id),
@@ -156,20 +165,39 @@ class CommentController {
   // Opret en ny kommentar til en planlagt rapport
   static async createScheduledReportComment(data) {
     try {
-      const result = await ScheduleReportComment.createComment(data);
+      const { schedule_report_id, user_id, content, images } = data;
+
+      // Opret selve kommentaren
+      const result = await ScheduleReportComment.createComment({
+        schedule_report_id,
+        user_id,
+        content,
+      });
       const insertedId = result.insertId;
-      const commentData = await ScheduleReportComment.getCommentById(
+
+      // Tilføj billeder, hvis de er vedhæftet
+      if (images && images.length > 0) {
+        for (const image of images) {
+          await ScheduleReportComment.addImage(insertedId, image);
+        }
+      }
+
+      // Hent den fulde kommentar med billeder
+      const [commentData] = await ScheduleReportComment.getCommentById(
+        insertedId
+      );
+      commentData.images = await ScheduleReportComment.getImagesByCommentId(
         insertedId
       );
 
-      // Konverter 'created_at' og 'updated_at' datoen
+      // Konverter datoer
       const formattedComment = {
-        ...commentData[0],
-        created_at: convertToUTC(commentData[0].created_at),
-        updated_at: convertToUTC(commentData[0].updated_at),
-        id: Number(commentData[0].id),
-        schedule_report_id: Number(commentData[0].schedule_report_id),
-        user_id: Number(commentData[0].user_id),
+        ...commentData,
+        created_at: convertToUTC(commentData.created_at),
+        updated_at: convertToUTC(commentData.updated_at),
+        id: Number(commentData.id),
+        schedule_report_id: Number(commentData.schedule_report_id),
+        user_id: Number(commentData.user_id),
       };
 
       return formattedComment;
@@ -182,32 +210,56 @@ class CommentController {
 
   // Opdater en kommentar til en planlagt rapport
   static async updateScheduledReportComment(data) {
-    const { commentId, userId, updatedContent } = data;
+    const { commentId, userId, updatedContent, imagesToAdd, imagesToRemove } =
+      data;
     try {
-      const result = await ScheduleReportComment.updateComment(
-        commentId,
-        userId,
-        updatedContent
-      );
-      if (result.affectedRows > 0) {
-        const [updatedComment] = await ScheduleReportComment.getCommentById(
-          commentId
+      // Opdater indholdet, hvis nødvendigt
+      if (updatedContent !== undefined) {
+        const result = await ScheduleReportComment.updateComment(
+          commentId,
+          userId,
+          updatedContent
         );
-        const formattedComment = {
-          ...updatedComment,
-          created_at: convertToUTC(updatedComment.created_at),
-          updated_at: convertToUTC(updatedComment.updated_at),
-          id: Number(updatedComment.id),
-          schedule_report_id: Number(updatedComment.schedule_report_id),
-          user_id: Number(updatedComment.user_id),
-        };
-
-        return formattedComment;
-      } else {
-        throw new Error(
-          "Du har ikke tilladelse til at redigere denne kommentar."
-        );
+        if (result.affectedRows === 0) {
+          throw new Error(
+            "Du har ikke tilladelse til at redigere denne kommentar."
+          );
+        }
       }
+
+      // Fjern billeder, hvis nødvendigt
+      if (imagesToRemove && Array.isArray(imagesToRemove)) {
+        for (const imageId of imagesToRemove) {
+          await ScheduleReportComment.deleteImageById(imageId);
+        }
+      }
+
+      // Tilføj nye billeder, hvis nødvendigt
+      if (imagesToAdd && Array.isArray(imagesToAdd)) {
+        for (const imageData of imagesToAdd) {
+          await ScheduleReportComment.addImage(commentId, imageData);
+        }
+      }
+
+      // Hent den opdaterede kommentar med billeder
+      const [updatedComment] = await ScheduleReportComment.getCommentById(
+        commentId
+      );
+      updatedComment.images = await ScheduleReportComment.getImagesByCommentId(
+        commentId
+      );
+
+      // Konverter datoer
+      const formattedComment = {
+        ...updatedComment,
+        created_at: convertToUTC(updatedComment.created_at),
+        updated_at: convertToUTC(updatedComment.updated_at),
+        id: Number(updatedComment.id),
+        schedule_report_id: Number(updatedComment.schedule_report_id),
+        user_id: Number(updatedComment.user_id),
+      };
+
+      return formattedComment;
     } catch (error) {
       throw new Error(
         "Error editing schedule report comment: " + error.message

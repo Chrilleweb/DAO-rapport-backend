@@ -335,25 +335,25 @@ class Rapport {
         content,
         report_type_id,
       } = scheduleReport;
-  
+
       // Insert into report_fields
       const [result] = await connection.query(
         `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
         [user_id, content, report_type_id]
       );
-  
+
       const newReportId = result.insertId;
-  
+
       // Copy comments
       const [comments] = await connection.query(
-        `SELECT content, user_id, created_at, updated_at 
+        `SELECT id, content, user_id, created_at, updated_at 
          FROM schedule_report_comments 
          WHERE schedule_report_id = ?`,
         [scheduleReportId]
       );
-  
+
       for (const comment of comments) {
-        await connection.query(
+        const [commentResult] = await connection.query(
           `INSERT INTO report_comments (report_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
           [
             newReportId,
@@ -363,8 +363,21 @@ class Rapport {
             comment.updated_at || comment.created_at,
           ]
         );
+
+        const newCommentId = commentResult.insertId;
+
+        // Copy comment images
+        const commentImages = await ScheduleReportComment.getImagesByCommentId(
+          comment.id
+        );
+        for (const image of commentImages) {
+          await connection.query(
+            `INSERT INTO report_comments_images (comment_id, image_data, created_at) VALUES (?, ?, ?)`,
+            [newCommentId, image.image_data, image.created_at]
+          );
+        }
       }
-  
+
       // Copy images
       const images = await this.getImagesByScheduledReportId(scheduleReportId);
       for (const image of images) {
@@ -373,7 +386,7 @@ class Rapport {
           [newReportId, image.image_data, image.created_at]
         );
       }
-  
+
       return result;
     } catch (error) {
       throw new Error(error);
