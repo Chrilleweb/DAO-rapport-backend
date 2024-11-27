@@ -391,7 +391,7 @@ class Rapport {
     } catch (error) {
       throw new Error(error);
     }
-  }  
+  }
 
   // Hent planlagte rapporter, der skal sendes
   static async getAllScheduledReports() {
@@ -520,6 +520,25 @@ class Rapport {
       throw new Error(error);
     }
   }
+
+  static async deleteScheduledReport({ reportId, userId }) {
+    try {
+      // Slet den planlagte rapport
+      const [result] = await connection.query(
+        `DELETE FROM schedule_reports WHERE id = ? AND user_id = ?`,
+        [reportId, userId]
+      );
+  
+      if (result.affectedRows === 0) {
+        throw new Error("Rapporten kunne ikke findes eller blev ikke slettet.");
+      }
+  
+      return result;
+    } catch (error) {
+      throw new Error("Error deleting scheduled report: " + error.message);
+    }
+  }
+  
 }
 
 export default Rapport;

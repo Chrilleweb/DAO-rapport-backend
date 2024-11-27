@@ -343,6 +343,19 @@ class ReportController {
       throw new Error("Error processing scheduled reports: " + error.message);
     }
   }
+
+  static async deleteScheduledReport(data) {
+    const { reportId, userId } = data;
+    try {
+      const result = await Rapport.deleteScheduledReport({ reportId, userId });
+      if (result.affectedRows === 0) {
+        throw new Error('Du har ikke tilladelse til at slette denne planlagte rapport.');
+      }
+      return { success: true, reportId };
+    } catch (error) {
+      throw new Error('Error deleting scheduled report: ' + error.message);
+    }
+  }
 }
 
 export default ReportController;
