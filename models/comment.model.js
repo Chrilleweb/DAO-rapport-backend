@@ -1,6 +1,44 @@
 import connection from "../config/db.js";
 
 class Comment {
+  // Tilføj et billede til en kommentar
+  static async addImage(commentId, imageData) {
+    try {
+      const [result] = await connection.query(
+        "INSERT INTO comment_images (comment_id, image_data) VALUES (?, ?)",
+        [commentId, imageData]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Hent billeder ved kommentar-id
+  static async getImagesByCommentId(commentId) {
+    try {
+      const [rows] = await connection.query(
+        "SELECT id, image_data FROM comment_images WHERE comment_id = ?",
+        [commentId]
+      );
+      return rows;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  // Slet billede ved id
+  static async deleteImageById(imageId) {
+    try {
+      const [result] = await connection.query(
+        "DELETE FROM comment_images WHERE id = ?",
+        [imageId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
   // Opret en ny kommentar
   static async create(newComment) {
     try {
