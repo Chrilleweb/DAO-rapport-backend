@@ -13,7 +13,6 @@ class CommentController {
       for (const comment of allComments) {
         comment.images = await Comment.getImagesByCommentId(comment.id);
         comment.created_at = convertToUTC(comment.created_at);
-        comment.updated_at = convertToUTC(comment.updated_at);
       }
 
       // Konverter data typer
@@ -143,7 +142,6 @@ class CommentController {
             comment.id
           );
           comment.created_at = convertToUTC(comment.created_at);
-          comment.updated_at = convertToUTC(comment.updated_at);
         }
 
         allComments[report.id] = comments.map((comment) => ({
@@ -194,7 +192,6 @@ class CommentController {
       const formattedComment = {
         ...commentData,
         created_at: convertToUTC(commentData.created_at),
-        updated_at: convertToUTC(commentData.updated_at),
         id: Number(commentData.id),
         schedule_report_id: Number(commentData.schedule_report_id),
         user_id: Number(commentData.user_id),
@@ -253,7 +250,6 @@ class CommentController {
       const formattedComment = {
         ...updatedComment,
         created_at: convertToUTC(updatedComment.created_at),
-        updated_at: convertToUTC(updatedComment.updated_at),
         id: Number(updatedComment.id),
         schedule_report_id: Number(updatedComment.schedule_report_id),
         user_id: Number(updatedComment.user_id),

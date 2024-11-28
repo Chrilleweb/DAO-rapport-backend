@@ -346,7 +346,7 @@ class Rapport {
 
       // Copy comments
       const [comments] = await connection.query(
-        `SELECT id, content, user_id, created_at, updated_at 
+        `SELECT id, content, user_id, created_at 
          FROM schedule_report_comments 
          WHERE schedule_report_id = ?`,
         [scheduleReportId]
@@ -354,13 +354,12 @@ class Rapport {
 
       for (const comment of comments) {
         const [commentResult] = await connection.query(
-          `INSERT INTO report_comments (report_id, user_id, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`,
+          `INSERT INTO report_comments (report_id, user_id, content, created_at) VALUES (?, ?, ?, ?)`,
           [
             newReportId,
             comment.user_id,
             comment.content,
             comment.created_at,
-            comment.updated_at || comment.created_at,
           ]
         );
 
@@ -506,7 +505,6 @@ class Rapport {
           comments: comments.map((comment) => ({
             ...comment,
             created_at: convertToUTC(comment.created_at),
-            updated_at: convertToUTC(comment.updated_at),
             id: Number(comment.id),
             schedule_report_id: Number(comment.schedule_report_id),
             user_id: Number(comment.user_id),

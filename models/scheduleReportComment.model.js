@@ -43,7 +43,7 @@ class ScheduleReportComment {
   static async getCommentsByScheduleReportId(scheduleReportId) {
     try {
       const [rows] = await connection.query(
-        `SELECT sc.id, sc.content, sc.created_at, sc.updated_at, sc.user_id,
+        `SELECT sc.id, sc.content, sc.created_at, sc.user_id,
                 u.firstname, u.lastname
          FROM schedule_report_comments sc
          JOIN users u ON sc.user_id = u.id
@@ -88,7 +88,7 @@ class ScheduleReportComment {
   static async getCommentById(commentId) {
     try {
       const [rows] = await connection.query(
-        `SELECT sc.id, sc.content, sc.created_at, sc.updated_at, sc.user_id,
+        `SELECT sc.id, sc.content, sc.created_at, sc.user_id,
                 u.firstname, u.lastname, sc.schedule_report_id
          FROM schedule_report_comments sc
          JOIN users u ON sc.user_id = u.id
@@ -100,7 +100,7 @@ class ScheduleReportComment {
       throw new Error(error);
     }
   }
-  
+
   static async deleteCommentById(commentId, userId) {
     try {
       const [result] = await connection.query(
