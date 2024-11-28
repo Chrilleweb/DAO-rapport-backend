@@ -266,6 +266,48 @@ class CommentController {
       );
     }
   }
+
+  static async deleteScheduledReportComment(data) {
+    const { commentId, userId } = data;
+    try {
+      // Fetch the schedule_report_id before deleting the comment
+      const [comment] = await ScheduleReportComment.getCommentById(commentId);
+      if (!comment) {
+        throw new Error('Kommentaren blev ikke fundet.');
+      }
+  
+      // Perform the delete operation
+      const result = await ScheduleReportComment.deleteCommentById(commentId, userId);
+      if (result.affectedRows === 0) {
+        throw new Error('Du har ikke tilladelse til at slette denne kommentar.');
+      }
+  
+      return { commentId, schedule_report_id: comment.schedule_report_id };
+    } catch (error) {
+      throw new Error('Error deleting schedule report comment: ' + error.message);
+    }
+  }
+
+  static async deleteComment(data) {
+    const { commentId, userId } = data;
+    try {
+      // Hent `report_id` før sletning for at opdatere frontend
+      const [comment] = await Comment.getCommentById(commentId);
+      if (!comment) {
+        throw new Error('Kommentaren blev ikke fundet.');
+      }
+
+      // Udfør sletningen
+      const result = await Comment.deleteCommentById(commentId, userId);
+      if (result.affectedRows === 0) {
+        throw new Error('Du har ikke tilladelse til at slette denne kommentar.');
+      }
+
+      return { commentId, report_id: comment.report_id };
+    } catch (error) {
+      throw new Error('Error deleting comment: ' + error.message);
+    }
+  }
 }
 
 export default CommentController;

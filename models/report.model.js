@@ -538,6 +538,23 @@ class Rapport {
       throw new Error("Error deleting scheduled report: " + error.message);
     }
   }
+
+  static async deleteReport ({ reportId, userId }) {
+    try {
+      const [result] = await connection.query(
+        `DELETE FROM report_fields WHERE id = ? AND user_id = ?`,
+        [reportId, userId]
+      );
+
+      if (result.affectedRows === 0) {
+        throw new Error("Rapporten kunne ikke findes eller blev ikke slettet.");
+      }
+
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
   
 }
 

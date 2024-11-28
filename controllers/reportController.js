@@ -356,6 +356,19 @@ class ReportController {
       throw new Error('Error deleting scheduled report: ' + error.message);
     }
   }
+
+  static async deleteReport(data) {
+    const { reportId, userId } = data;
+    try {
+      const result = await Rapport.deleteReport({ reportId, userId });
+      if (result.affectedRows === 0) {
+        throw new Error('Du har ikke tilladelse til at slette denne rapport.');
+      }
+      return { success: true, reportId };
+    } catch (error) {
+      throw new Error('Error deleting report: ' + error.message);
+    }
+  }
 }
 
 export default ReportController;

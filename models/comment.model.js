@@ -116,7 +116,18 @@ class Comment {
       throw new Error(error);
     }
   }
-  
+
+  static async deleteCommentById(commentId, userId) {
+    try {
+      const [result] = await connection.query(
+        `DELETE FROM report_comments WHERE id = ? AND user_id = ?`,
+        [commentId, userId]
+      );
+      return result;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }
 
 export default Comment;
