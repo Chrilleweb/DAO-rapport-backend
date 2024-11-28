@@ -95,6 +95,7 @@ export const login_post = async (req, res) => {
       secure: true,
       sameSite: process.env.COOKIE_SAMESITE,
       domain: process.env.COOKIE_DOMAIN,
+      path: "/",
       maxAge: 10 * 60 * 60 * 1000, // 10 hours
     });
 
@@ -166,7 +167,23 @@ export const change_password_post = async (req, res) => {
 };
 
 export const logout_get = (req, res) => {
-  res.cookie("token", "", { maxAge: 1 }); // Expire the cookie immediately
-  res.clearCookie("requiresPasswordChange", { path: "/" });
+  // Clear the token cookie
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: process.env.COOKIE_SAMESITE,
+    domain: process.env.COOKIE_DOMAIN,
+    path: "/",
+  });
+
+  // Clear the requiresPasswordChange cookie
+  res.clearCookie("requiresPasswordChange", {
+    httpOnly: true,
+    secure: true,
+    sameSite: process.env.COOKIE_SAMESITE,
+    domain: process.env.COOKIE_DOMAIN,
+    path: "/",
+  });
+
   return res.status(200).json({ message: "Logged out successfully" });
 };
