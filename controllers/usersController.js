@@ -152,10 +152,11 @@ export const change_password_post = async (req, res) => {
     await User.updatePassword(userId, hashedPassword);
 
     res.clearCookie("requiresPasswordChange", {
-      path: "/",
-      domain: ".up.railway.app",
-      sameSite: process.env.COOKIE_SAMESITE,
-    domain: process.env.COOKIE_DOMAIN,
+      httpOnly: true,
+        secure: true,
+        sameSite: process.env.COOKIE_SAMESITE,
+        domain: process.env.COOKIE_DOMAIN,
+        path: "/",
     });
     return res.status(200).json({ message: "Password changed successfully" });
   } catch (error) {
