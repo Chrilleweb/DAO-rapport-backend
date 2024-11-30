@@ -308,10 +308,9 @@ class Rapport {
     try {
       const { user_id, content, report_type_id, scheduled_time, images } = data;
       const [result] = await connection.query(
-        `INSERT INTO schedule_reports (user_id, content, report_type_id, scheduled_time) 
-         VALUES (?, ?, ?, CONVERT_TZ(?, '+00:00', 'Europe/Copenhagen'))`,
+        `INSERT INTO schedule_reports (user_id, content, report_type_id, scheduled_time) VALUES (?, ?, ?, ?)`,
         [user_id, content, report_type_id, scheduled_time]
-    );
+      );
 
       const scheduleReportId = result.insertId;
 
