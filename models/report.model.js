@@ -371,8 +371,8 @@ class Rapport {
         );
         for (const image of commentImages) {
           await connection.query(
-            `INSERT INTO report_comments_images (comment_id, image_data, created_at) VALUES (?, ?, ?)`,
-            [newCommentId, image.image_data, image.created_at]
+            `INSERT INTO report_comments_images (comment_id, image_data) VALUES (?, ?)`,
+            [newCommentId, image.image_data]
           );
         }
       }
@@ -381,8 +381,8 @@ class Rapport {
       const images = await this.getImagesByScheduledReportId(scheduleReportId);
       for (const image of images) {
         await connection.query(
-          `INSERT INTO report_images (report_id, image_data, created_at) VALUES (?, ?, ?)`,
-          [newReportId, image.image_data, image.created_at]
+          `INSERT INTO report_images (report_id, image_data) VALUES (?, ?)`,
+          [newReportId, image.image_data]
         );
       }
 
