@@ -98,7 +98,7 @@ class Rapport {
       const report_type_id = 1; // ALLE rapporttype
 
       const [result] = await connection.query(
-        `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
+        `INSERT INTO reports (user_id, content, report_type_id) VALUES (?, ?, ?)`,
         [user_id, content, report_type_id]
       );
 
@@ -112,7 +112,7 @@ class Rapport {
   static async create(newReportField) {
     try {
       const [result] = await connection.query(
-        "INSERT INTO report_fields SET ?",
+        "INSERT INTO reports SET ?",
         newReportField
       );
       return result;
@@ -125,7 +125,7 @@ class Rapport {
   static async update(reportId, userId, updatedFields) {
     try {
       const [result] = await connection.query(
-        "UPDATE report_fields SET ? WHERE id = ? AND user_id = ?",
+        "UPDATE reports SET ? WHERE id = ? AND user_id = ?",
         [updatedFields, reportId, userId]
       );
       return result;
@@ -137,7 +137,7 @@ class Rapport {
   static async updateReportType(reportId, updatedReportTypeId) {
     try {
       const [result] = await connection.query(
-        "UPDATE report_fields SET report_type_id = ? WHERE id = ?",
+        "UPDATE reports SET report_type_id = ? WHERE id = ?",
         [updatedReportTypeId, reportId]
       );
       return result;
@@ -159,7 +159,7 @@ class Rapport {
           u.firstname AS report_firstname, u.lastname AS report_lastname, rt.report_type,
           rc.id AS comment_id, rc.content AS comment_content, rc.created_at AS comment_created_at,
           rc.user_id AS comment_user_id, cu.firstname AS comment_firstname, cu.lastname AS comment_lastname
-        FROM report_fields rf
+        FROM reports rf
         JOIN users u ON rf.user_id = u.id
         JOIN report_types rt ON rf.report_type_id = rt.id
         LEFT JOIN report_comments rc ON rf.id = rc.report_id
@@ -227,7 +227,7 @@ class Rapport {
           u.firstname AS report_firstname, u.lastname AS report_lastname, rt.report_type,
           rc.id AS comment_id, rc.content AS comment_content, rc.created_at AS comment_created_at,
           rc.user_id AS comment_user_id, cu.firstname AS comment_firstname, cu.lastname AS comment_lastname
-        FROM report_fields rf
+        FROM reports rf
         JOIN users u ON rf.user_id = u.id
         JOIN report_types rt ON rf.report_type_id = rt.id
         LEFT JOIN report_comments rc ON rf.id = rc.report_id
@@ -284,13 +284,13 @@ class Rapport {
     try {
       const [rows] = await connection.query(
         `
-        SELECT report_fields.id, report_fields.content, report_fields.created_at,
-               report_fields.user_id, report_fields.report_type_id,
+        SELECT reports.id, reports.content, reports.created_at,
+               reports.user_id, reports.report_type_id,
                users.firstname, users.lastname, report_types.report_type
-        FROM report_fields
-        JOIN users ON report_fields.user_id = users.id
-        JOIN report_types ON report_fields.report_type_id = report_types.id
-        WHERE report_fields.id = ?
+        FROM reports
+        JOIN users ON reports.user_id = users.id
+        JOIN report_types ON reports.report_type_id = report_types.id
+        WHERE reports.id = ?
         `,
         [reportId]
       );
@@ -336,9 +336,9 @@ class Rapport {
         report_type_id,
       } = scheduleReport;
 
-      // Insert into report_fields
+      // Insert into reports
       const [result] = await connection.query(
-        `INSERT INTO report_fields (user_id, content, report_type_id) VALUES (?, ?, ?)`,
+        `INSERT INTO reports (user_id, content, report_type_id) VALUES (?, ?, ?)`,
         [user_id, content, report_type_id]
       );
 
@@ -540,7 +540,7 @@ class Rapport {
   static async deleteReport ({ reportId, userId }) {
     try {
       const [result] = await connection.query(
-        `DELETE FROM report_fields WHERE id = ? AND user_id = ?`,
+        `DELETE FROM reports WHERE id = ? AND user_id = ?`,
         [reportId, userId]
       );
 

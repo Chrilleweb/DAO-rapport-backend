@@ -300,7 +300,7 @@ class ReportController {
       const dueReports = await Rapport.getDueScheduledReports();
 
       for (const report of dueReports) {
-        // Insert the report into report_fields
+        // Insert the report into reports
         const insertResult = await Rapport.insertScheduledReport(report);
 
         // Mark the scheduled report as sent
