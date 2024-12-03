@@ -337,6 +337,7 @@ class ReportController {
             comments: formattedComments,
             images: fullReport.images, // Include images
           });
+          io.emit("delete scheduled report success", { reportId: report.id });
         }
       }
     } catch (error) {
