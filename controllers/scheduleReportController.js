@@ -1,5 +1,4 @@
 import ScheduleReport from "../models/scheduleReport.model.js";
-import Comment from "../models/comment.model.js";
 import convertToUTC from "dato-konverter";
 import Report from "../models/report.model.js";
 
@@ -130,44 +129,22 @@ class ScheduleReportController {
   static async processDueScheduledReports(io) {
     try {
       const dueReports = await ScheduleReport.getDueScheduledReports();
-
+  
       for (const report of dueReports) {
         // Indsæt rapporten i reports
         const insertResult = await ScheduleReport.insertScheduledReport(report);
-
+  
         // Marker den planlagte rapport som sendt
         await ScheduleReport.markScheduledReportAsSent(report.id);
-
+  
         // Hent den fulde rapport for at sende til klienter
-        const fullReport = await Report.getFullReportById(
-          insertResult.insertId
-        );
-
+        const fullReport = await Report.getFullReportById(insertResult.insertId);
+  
         if (fullReport) {
-          // Hent kommentarer for den nye rapport
-          const comments = await Comment.getCommentsByReportId(
-            insertResult.insertId
-          );
-
-          // Hent billeder for hver kommentar
-          for (const comment of comments) {
-            comment.images = await Comment.getImagesByCommentId(comment.id);
-            comment.created_at = convertToUTC(comment.created_at);
-          }
-
-          const formattedComments = comments.map((comment) => ({
-            ...comment,
-            id: Number(comment.id),
-            report_id: Number(comment.report_id),
-            user_id: Number(comment.user_id),
-          }));
-
           // Emit rapport med dens kommentarer og billeder
           io.emit("new report", {
             ...fullReport,
             created_at: convertToUTC(fullReport.created_at),
-            comments: formattedComments,
-            images: fullReport.images, // Inkluder billeder
           });
           io.emit("delete scheduled report success", { reportId: report.id });
         }
@@ -175,7 +152,7 @@ class ScheduleReportController {
     } catch (error) {
       throw new Error("Error processing scheduled reports: " + error.message);
     }
-  }
+  }  
 
   // Slet en planlagt rapport
   static async deleteScheduledReport(data) {

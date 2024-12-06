@@ -1,5 +1,4 @@
 import Report from "../models/report.model.js";
-import Comment from "../models/comment.model.js";
 import convertToUTC from "dato-konverter";
 
 class ReportController {
@@ -7,46 +6,31 @@ class ReportController {
   static async createReport(data) {
     try {
       const { content, user_id, report_type_id, images } = data;
-
+  
       const newReport = await Report.create({
         content,
         user_id,
         report_type_id,
       });
-
+  
       // Hvis der er vedhæftede billeder, tilføj dem
       if (images && images.length > 0) {
         for (const image of images) {
           await Report.addImage(newReport.insertId, image);
         }
       }
-
-      // Hent rapporten med detaljer
-      const reportWithDetails = await Report.getFullReportById(
-        newReport.insertId
-      );
-
-      // Hent kommentarer for den nye rapport
-      const comments = await Comment.getCommentsByReportId(newReport.insertId);
-
-      const formattedComments = comments.map((comment) => ({
-        ...comment,
-        created_at: convertToUTC(comment.created_at),
-        id: Number(comment.id),
-        report_id: Number(comment.report_id),
-        user_id: Number(comment.user_id),
-      }));
-
+  
+      // Hent rapporten med detaljer (inkl. billeder og kommentarer)
+      const reportWithDetails = await Report.getFullReportById(newReport.insertId);
+  
       return {
         ...reportWithDetails,
         created_at: convertToUTC(reportWithDetails.created_at),
-        comments: formattedComments,
-        images: reportWithDetails.images,
       };
     } catch (error) {
       throw new Error("Error creating new report: " + error.message);
     }
-  }
+  }  
 
   // Opdater en eksisterende rapport
   static async updateReport(data) {

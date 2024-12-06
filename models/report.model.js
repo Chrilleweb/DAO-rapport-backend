@@ -1,4 +1,5 @@
 import connection from "../config/db.js";
+import Comment from "./comment.model.js";
 import convertToUTC from "dato-konverter";
 
 class Report {
@@ -255,13 +256,24 @@ class Report {
       );
       const report = rows[0];
       if (report) {
+        // Hent billeder for rapporten
         report.images = await this.getImagesByReportId(report.id);
+  
+        // Hent kommentarer for rapporten
+        const comments = await Comment.getCommentsByReportId(report.id);
+        report.comments = comments.map((comment) => ({
+          ...comment,
+          created_at: convertToUTC(comment.created_at),
+          id: Number(comment.id),
+          report_id: Number(comment.report_id),
+          user_id: Number(comment.user_id),
+        }));
       }
       return report;
     } catch (error) {
       throw new Error(error);
     }
-  }
+  }  
 
   static async deleteReport({ reportId, userId }) {
     try {
