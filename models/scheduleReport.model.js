@@ -92,12 +92,7 @@ class ScheduleReport {
       for (const comment of comments) {
         const [commentResult] = await connection.query(
           `INSERT INTO report_comments (report_id, user_id, content, created_at) VALUES (?, ?, ?, ?)`,
-          [
-            newReportId,
-            comment.user_id,
-            comment.content,
-            comment.created_at,
-          ]
+          [newReportId, comment.user_id, comment.content, comment.created_at]
         );
 
         const newCommentId = commentResult.insertId;
@@ -119,6 +114,12 @@ class ScheduleReport {
       for (const image of images) {
         await Report.addImage(newReportId, image.image_data);
       }
+
+      // Slet den planlagte rapport fra schedule_reports for at ryde op i databasen
+      await connection.query(
+        `DELETE FROM schedule_reports WHERE id = ? AND user_id = ?`,
+        [scheduleReportId, user_id]
+      );
 
       return reportResult;
     } catch (error) {
@@ -255,11 +256,11 @@ class ScheduleReport {
         `DELETE FROM schedule_reports WHERE id = ? AND user_id = ?`,
         [reportId, userId]
       );
-  
+
       if (result.affectedRows === 0) {
         throw new Error("Rapporten kunne ikke findes eller blev ikke slettet.");
       }
-  
+
       return result;
     } catch (error) {
       throw new Error("Error deleting scheduled report: " + error.message);
