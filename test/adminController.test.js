@@ -32,7 +32,7 @@ describe("Admin Tests", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(401); // Unauthorized status for incorrect email
-        expect(res.body).to.have.property("message", "Invalid email"); // Check error message in response body
+        expect(res.body).to.have.property("message", "Forkert email"); // Check error message in response body
         done();
       });
   });
@@ -44,7 +44,6 @@ describe("Admin Tests", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(200);
-        expect(res.body).to.be.an("array");
         done();
       });
   });

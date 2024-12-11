@@ -32,7 +32,7 @@ describe("API Tests", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(401); // Unauthorized status for incorrect email
-        expect(res.body).to.have.property("message", "Invalid email"); // Check error message in response body
+        expect(res.body).to.have.property("message", "Forkert email"); // Check error message in response body
         done();
       });
   });
@@ -44,7 +44,7 @@ describe("API Tests", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(401); // Unauthorized status for incorrect password
-        expect(res.body).to.have.property("message", "Invalid password"); // Check error message in response body
+        expect(res.body).to.have.property("message", "Forkert adgangskode"); // Check error message in response body
         done();
       });
   });
@@ -58,7 +58,7 @@ describe("API Tests", () => {
         expect(res.status).to.equal(400); // Bad request status for empty fields
         expect(res.body).to.have.property(
           "message",
-          "Please fill in all fields"
+          "Udfyld alle felter"
         ); // Check error message in response body
         done();
       });
@@ -73,7 +73,7 @@ describe("API Tests", () => {
         expect(res.status).to.equal(400); // Bad request status for missing email
         expect(res.body).to.have.property(
           "message",
-          "Please fill in all fields"
+          "Udfyld alle felter"
         ); // Check error message in response body
         done();
       });
@@ -88,7 +88,7 @@ describe("API Tests", () => {
         expect(res.status).to.equal(400); // Bad request status for missing password
         expect(res.body).to.have.property(
           "message",
-          "Please fill in all fields"
+          "Udfyld alle felter"
         ); // Check error message in response body
         done();
       });
