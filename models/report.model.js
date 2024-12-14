@@ -110,7 +110,7 @@ class Report {
       throw new Error("reportTypeIds must be a non-empty array");
     }
     try {
-      const placeholders = reportTypeIds.map(() => "?").join(",");
+      const placeholders = reportTypeIds.map(() => "?").join(","); // generere placeholders (f.eks. "?, ?, ?")
       const [rows] = await connection.query(
         `
         SELECT 
@@ -178,7 +178,7 @@ class Report {
     endDate
   ) {
     try {
-      const placeholders = reportTypeIds.map(() => "?").join(",");
+      const placeholders = reportTypeIds.map(() => "?").join(","); // Generere placeholders (f.eks. "?, ?, ?")
       const [rows] = await connection.query(
         `
         SELECT 

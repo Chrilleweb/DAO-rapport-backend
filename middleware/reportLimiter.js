@@ -2,10 +2,13 @@ const rateLimits = {}; // In-memory storage for rate limiting data
 
 const rateLimiter = (socket, eventName, limit, timeWindow) => {
     const userId = socket.user.userId; // Unik bruger-ID
+
     if (!rateLimits[userId]) rateLimits[userId] = {}; // Initialiser brugerens data
+
     const now = Date.now();
   
     if (!rateLimits[userId][eventName]) rateLimits[userId][eventName] = []; // Initialiser event data
+    
     rateLimits[userId][eventName] = rateLimits[userId][eventName].filter(
       (timestamp) => now - timestamp < timeWindow // Fjern gamle timestamps
     );
