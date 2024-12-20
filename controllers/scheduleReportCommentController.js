@@ -21,6 +21,7 @@ class ScheduleReportCommentController {
           comment.created_at = convertToUTC(comment.created_at);
         }
 
+        // Konverterer relevante felter til tal for at sikre korrekt datatype og undgå fejl ved sammenligninger eller beregninger
         allComments[report.id] = comments.map((comment) => ({
           ...comment,
           id: Number(comment.id),

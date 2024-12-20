@@ -115,11 +115,11 @@ class ScheduleReport {
         await Report.addImage(newReportId, image.image_data);
       }
 
-      // Slet den planlagte rapport fra schedule_reports for at ryde op i databasen
-      await connection.query(
-        `DELETE FROM schedule_reports WHERE id = ? AND user_id = ?`,
-        [scheduleReportId, user_id]
-      );
+      // // Slet den planlagte rapport fra schedule_reports for at ryde op i databasen
+      // await connection.query(
+      //   `DELETE FROM schedule_reports WHERE id = ? AND user_id = ?`,
+      //   [scheduleReportId, user_id]
+      // );
 
       return reportResult;
     } catch (error) {
