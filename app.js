@@ -17,7 +17,7 @@ const app = express();
 const server = http.createServer(app);
 socketSetup(server);
 
-// Trust the first proxy
+// Trust the first proxy - Railway uses a proxy to forward requests, fx. the client IP
 app.set("trust proxy", 1);
 
 // middleware
