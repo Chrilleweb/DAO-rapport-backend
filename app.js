@@ -25,10 +25,10 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'"], // allows resources to be loaded from the same origin
+        defaultSrc: ["'self'"], // allows resources to be loaded from the same origin (default rule)
         scriptSrc: ["'self'", process.env.FRONTEND_URL], // allows scripts to be loaded from the same origin
         styleSrc: ["'self'", process.env.FRONTEND_URL], // allows styles to be loaded from the same origin
-        connectSrc: ["'self'", process.env.FRONTEND_URL], // allows data to be loaded from the same origin
+        connectSrc: ["'self'", process.env.FRONTEND_URL], // allows data (API calls) to be loaded from the same origin
       },
     },
     referrerPolicy: { policy: "no-referrer" }, // hides the Referer header from third-party websites
