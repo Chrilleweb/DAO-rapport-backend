@@ -21,6 +21,7 @@ class CommentController {
         user_id: Number(comment.user_id),
       }));
 
+      //Strukturer data i grupper efter 'report_id' på en organiseret måde
       const groupedComments = convertedComments.reduce((acc, comment) => {
         const reportId = String(comment.report_id);
         if (!acc[reportId]) acc[reportId] = [];
