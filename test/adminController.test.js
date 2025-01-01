@@ -25,7 +25,7 @@ describe("Admin Tests", () => {
       });
   });
 
-  it("should display 'Invalid email' message for incorrect email", (done) => {
+  it("should display 'Forkert email eller adgangskode' message for incorrect email", (done) => {
     request(server)
       .post("/api/login")
       .send({ email: "wrongadmin@mail.com", password: "testadminpassword" })

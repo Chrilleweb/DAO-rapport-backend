@@ -25,7 +25,7 @@ describe("API Tests", () => {
       });
   });
 
-  it("should display 'Invalid email' message for incorrect email", (done) => {
+  it("should display 'Forkert email eller adgangskode' message for incorrect email", (done) => {
     request(server)
       .post("/api/login")
       .send({ email: "wrong@mail.com", password: "testpassword" })
@@ -37,7 +37,7 @@ describe("API Tests", () => {
       });
   });
 
-  it("should display 'Invalid password' message for incorrect password", (done) => {
+  it("should display 'Forkert email eller adgangskode' message for incorrect password", (done) => {
     request(server)
       .post("/api/login")
       .send({ email: "test@mail.com", password: "wrongpassword" })
