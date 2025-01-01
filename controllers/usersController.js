@@ -61,19 +61,19 @@ export const login_post = async (req, res) => {
     }
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ message: "Forkert email" });
+      return res.status(400).json({ message: "Forkert email eller adgangskode" });
     }
 
     // Find the user by email
     const user = await User.findByEmail(email);
     if (!user) {
-      return res.status(401).json({ message: "Forkert email" });
+      return res.status(401).json({ message: "Forkert email eller adgangskode" });
     }
 
     // Compare the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Forkert adgangskode" });
+      return res.status(401).json({ message: "Forkert email eller adgangskode" });
     }
 
     // Create and sign a JWT using the secret key from environment variable
