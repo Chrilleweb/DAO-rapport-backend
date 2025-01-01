@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import helmet from "helmet";
 import apiRoutes from "./routes/apiRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -46,9 +45,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Check if the client IP is allowed
 app.use(checkIP);

@@ -32,7 +32,7 @@ describe("Admin Tests", () => {
       .end((err, res) => {
         if (err) return done(err);
         expect(res.status).to.equal(401); // Unauthorized status for incorrect email
-        expect(res.body).to.have.property("message", "Forkert email"); // Check error message in response body
+        expect(res.body).to.have.property("message", "Forkert email eller adgangskode"); // Check error message in response body
         done();
       });
   });
